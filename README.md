@@ -116,7 +116,6 @@ The installer should open Yomitan's settings when it finishes.
 
 Then:
 
-1. Turn on **Advanced** in Yomitan if it is not already on.
 2. Open **General**.
 3. Turn on **Enable Yomitan API**.
 4. Accept Chrome's permission request if one appears.
@@ -133,7 +132,6 @@ You normally do not need to change anything else.
 5. Keep the black installer window open until it says it has finished.
 6. In Chrome, click the puzzle-piece **Extensions** icon, find **Yomitan**, and
    open its settings.
-7. Turn on **Advanced** if it is off.
 8. Open **General**, turn on **Enable Yomitan API**, and accept Chrome's
    permission prompt if one appears.
 
@@ -174,29 +172,12 @@ episode.
 1. Read the count in the upper-right corner of the review window. It shows how
    many words are included and skipped.
 2. Under **Skip word sets**, check every category you want removed from the
-   export. Available choices include particles, vocalizations, semantic
-   grammar, title honorifics, title positions, JLPT N5/N4 vocabulary, and words
-   used only once in the episode.
-3. Use the frequency filters if you want to exclude uncommon words. Frequency
-   data comes from Yomitan and may take a little time to finish loading.
-4. Scroll to **All Skipped Words: Toggle to Keep**. Every checked row is being
-   skipped. Uncheck a row to restore that particular word.
+   export. 
 5. Under **Skip duplicates**, choose either the narrower same-j...-card check,
-   the broader same-word check, or neither. The two checks cannot be enabled at
-   the same time.
+   the broader same-word check, or neither. 
 6. Confirm that the included/skipped count changes when you change a filter.
 
-### 3. Choose Your Anki Settings
-
-1. Open the **Destination deck** dropdown.
-2. Click the Anki deck that should receive the cards. The suggested deck marked
-   **(new)** will be created automatically if you select it.
-3. Leave **Include Yomitan media** checked if you want audio and dictionary
-   images. Media makes the export slower.
-4. If red text says Anki is offline, open Anki Desktop and refresh the
-   page before continuing.
-
-### 4. Add the Cards
+### 3. Add the Cards
 
 1. Click **Export as APKG**.
 2. Leave Chrome and Anki open while Yomitan creates every selected card. The
@@ -205,63 +186,7 @@ episode.
 4. The cards have been added to the destination deck in Anki, and Chrome has
    also downloaded an `.apkg` copy.
 5. Click **View Export** to open the download's location on your computer.
-6. Read the completion line for the number added, skipped as duplicates, or
-   failed. Failed entries do not cancel cards that were already added.
 
-## Other Export Options
-
-Most users should use **Export as APKG**.
-
-There are also two optional alternatives:
-
-1. Click **Other exports** below the review list.
-2. Click **Anki .txt** to download an Anki-importable text file, or click
-   **Copy for Yomitan** to copy the selected words for Yomitan's note generator.
-
-**Anki .txt**
-Creates a text file that can be imported into Anki manually.
-
-**Copy for Yomitan**
-Copies the vocabulary so you can use Yomitan's own note-generation tools.
-
-## How Long Does It Take?
-
-Small vocabulary lists are usually fairly quick.
-
-Large episode decks can take longer because Yomitan has to create each card individually.
-
-Cards with audio or other media also take longer than simple text cards.
-
-You can cancel an import if necessary. Cards already added to Anki will remain there.
-
-## Troubleshooting
-
-### Yomitan Is Not Detected
-
-Make sure:
-
-* Yomitan is installed
-* **Enable Yomitan API** is turned on
-* You ran the Mac helper installer
-
-If it still does not connect, completely quit Chrome, reopen it, and try again.
-
-### Anki Is Not Detected
-
-Make sure:
-
-* Anki Desktop is open
-* AnkiConnect is installed and enabled
-
-### The Cards Do Not Look Right
-
-The extension uses your **Yomitan card format and dictionaries**.
-
-Open Yomitan and check the card format and dictionaries you selected.
-
-### The Episode Is Not Detected
-
-Make sure you are signed into the website and that your account is connected on the extension's setup page.
 
 ## Updating the Extension
 
