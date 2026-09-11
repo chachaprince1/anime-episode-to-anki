@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "jpdb → Yomitan → Anki",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Review a jpdb episode's vocabulary, render high-quality cards with Yomitan, and add or export them for Anki.",
   "permissions": [
     "storage",

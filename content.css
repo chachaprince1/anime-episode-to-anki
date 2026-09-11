@@ -218,10 +218,10 @@
 }
 .jya-word-row:last-child { border-bottom: 0 !important; }
 .jya-word-row:hover { background: #faf6ed !important; }
-.jya-word-row.skipped { background: #f2eee7 !important; opacity: .68 !important; }
+.jya-word-row.skipped { background: #f2eee7 !important; }
 .jya-word-row > input { width: 15px !important; height: 15px !important; margin: 0 !important; accent-color: var(--jya-accent) !important; }
 .jya-word-main { display: flex !important; align-items: baseline !important; gap: 9px !important; min-width: 0 !important; }
-.jya-word-main strong { font-family: "Hiragino Sans", "Yu Gothic", sans-serif !important; font-size: 17px !important; }
+.jya-word-main strong { font-family: "Hiragino Sans", "Yu Gothic", sans-serif !important; font-size: 17px !important; font-weight: 400 !important; }
 .jya-word-main span { color: var(--jya-muted) !important; font-family: "Hiragino Sans", "Yu Gothic", sans-serif !important; font-size: 12px !important; }
 .jya-word-details { display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; gap: 8px !important; min-width: 0 !important; color: var(--jya-muted) !important; font-size: 11px !important; }
 .jya-word-details > span { overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
