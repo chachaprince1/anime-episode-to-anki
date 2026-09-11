@@ -1,6 +1,6 @@
 # Website → Yomitan → Anki
 
-This Chrome extension lets you turn vocabulary from anime episodes on **the website** into Anki cards using **your Yomitan dictionaries and card settings**.
+This Chrome extension lets you turn vocabulary from anime episodes on **the website introduced in class** into Anki cards using **your Yomitan dictionaries and card settings**.
 
 The basic process is:
 
@@ -12,7 +12,7 @@ The extension automatically removes common low-value items, such as standalone p
 
 Before using the extension, you will need:
 
-* A free account on **the website**
+* A free account on **the website introduced in class**
 * **Yomitan** installed in Chrome
 * **Anki Desktop**
 * The **AnkiConnect** add-on for Anki
@@ -79,7 +79,7 @@ that exact location every time it starts.
 
 ## Connect Your Account
 
-1. Sign in to your free account (the anime website) in the same Chrome profile where you
+1. Sign up / sign in to your free account (the anime website) in the same Chrome profile where you
    installed the extension.
 2. Return to the extension's setup tab.
 3. Find the **jpd..** row. It should say **Action needed**.
