@@ -71,7 +71,7 @@ work together as one Chrome extension.
 7. Click **Select** or **Open**. If Chrome says it cannot find a manifest,
    you selected the wrong folder: go back and select the folder that directly
    contains `manifest.json`.
-8. Chrome should add a card named **jpdb → Yomitan → Anki** to the Extensions
+8. Chrome should add a card named **jpd. → Yomitan → Anki** to the Extensions
    page, and the extension's setup page should open automatically.
 
 Keep the extracted folder on your computer. Chrome loads the extension from
@@ -79,17 +79,17 @@ that exact location every time it starts.
 
 ## Connect Your Account
 
-1. Sign in to your free jpdb account in the same Chrome profile where you
+1. Sign in to your free account (the anime website) in the same Chrome profile where you
    installed the extension.
 2. Return to the extension's setup tab.
-3. Find the **jpdb** row. It should say **Action needed**.
+3. Find the **jpd..** row. It should say **Action needed**.
 4. Click **Connect signed-in account**.
-5. Chrome opens jpdb's settings page. Scroll to the API-key section near the
+5. Chrome opens the website's settings page. Scroll to the API-key section near the
    bottom of that page.
 6. Click the extension's **Use this API key** button. Do not post or send the
    key to anyone.
 7. Wait for the message confirming that the key was verified and saved.
-8. Return to the extension setup tab. The jpdb row should now say
+8. Return to the extension setup tab. The jpd. row should now say
    **Connected**. If it does not update, click **Check again** at the top of
    the setup page.
 
@@ -153,16 +153,16 @@ The setup page automatically checks whether the website, Yomitan, and Anki are r
 
 ## Add an Episode to Anki
 
-On a jpdb anime page, you will see a new **Add to Anki** button beside each
+On an anime page, you will see a new **Add to Anki** button beside each
 episode.
 
 ### 1. Choose an Episode
 
 1. Open Anki Desktop and leave it running during the export.
-2. In Chrome, open jpdb's anime difficulty list and open an anime's detail
+2. In Chrome, open the website's anime difficulty list and open an anime's detail
    page.
 3. Find the episode you want and click **Add to Anki** beside that episode.
-4. jpdb adds the episode to your account and opens its deck page.
+4. The website adds the episode to your account and opens its deck page.
 5. On that deck page, click **Continue: review Episode … for Anki**.
 6. If you opened a deck directly instead, click
    **Add deck to Anki with Yomitan**.
@@ -181,7 +181,7 @@ episode.
    data comes from Yomitan and may take a little time to finish loading.
 4. Scroll to **All Skipped Words: Toggle to Keep**. Every checked row is being
    skipped. Uncheck a row to restore that particular word.
-5. Under **Skip duplicates**, choose either the narrower same-jpdb-card check,
+5. Under **Skip duplicates**, choose either the narrower same-j...-card check,
    the broader same-word check, or neither. The two checks cannot be enabled at
    the same time.
 6. Confirm that the included/skipped count changes when you change a filter.
@@ -193,7 +193,7 @@ episode.
    **(new)** will be created automatically if you select it.
 3. Leave **Include Yomitan media** checked if you want audio and dictionary
    images. Media makes the export slower.
-4. If red text says Anki is offline, open Anki Desktop and refresh the jpdb
+4. If red text says Anki is offline, open Anki Desktop and refresh the
    page before continuing.
 
 ### 4. Add the Cards
