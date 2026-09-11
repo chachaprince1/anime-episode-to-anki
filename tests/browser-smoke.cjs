@@ -171,12 +171,15 @@ async function injectExtension(page) {
     await deckPage.locator(".jya-review-overlay").waitFor();
     assert.equal(await deckPage.locator(".jya-word-row").count(), 3);
     assert.match(await deckPage.locator(".jya-count").textContent(), /1 included · 2 skipped/);
-    assert.equal(await deckPage.getByRole("button", {name: "Export + import to Anki"}).isDisabled(), true);
-    assert.equal(await deckPage.getByRole("button", {name: "Export Anki .txt"}).isEnabled(), true);
+    assert.equal(await deckPage.getByRole("button", {name: "Export as APKG"}).isDisabled(), true);
+    assert.equal(await deckPage.locator(".jya-anki-offline-message").isVisible(), true);
+    assert.equal(await deckPage.locator(".jya-anki-offline-message").textContent(), "Your Anki is offline. Please open Anki and refresh this page.");
+    await deckPage.getByText("Other exports", {exact: true}).click();
+    assert.equal(await deckPage.getByRole("button", {name: "Anki .txt"}).isEnabled(), true);
     const privilegedRequestsBefore = await deckPage.evaluate(() => globalThis.__openedRequests.length);
     await deckPage.getByRole("button", {name: "Copy for Yomitan"}).dispatchEvent("click");
-    await deckPage.getByRole("button", {name: "Export Anki .txt"}).dispatchEvent("click");
-    await deckPage.getByRole("button", {name: "Export + import to Anki"}).evaluate((button) => {
+    await deckPage.getByRole("button", {name: "Anki .txt"}).dispatchEvent("click");
+    await deckPage.getByRole("button", {name: "Export as APKG"}).evaluate((button) => {
       button.disabled = false;
       button.dispatchEvent(new MouseEvent("click", {bubbles: true}));
     });

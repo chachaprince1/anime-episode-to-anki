@@ -369,6 +369,10 @@
 
     const actions = document.createElement("div");
     actions.className = "jya-actions";
+    const ankiOfflineMessage = document.createElement("p");
+    ankiOfflineMessage.className = "jya-anki-offline-message";
+    ankiOfflineMessage.textContent = "Your Anki is offline. Please open Anki and refresh this page.";
+    ankiOfflineMessage.hidden = true;
     const copy = document.createElement("button");
     copy.type = "button";
     copy.className = "jya-secondary";
@@ -395,7 +399,7 @@
     const otherExportsSummary = document.createElement("summary");
     otherExportsSummary.textContent = "Other exports";
     otherExports.append(otherExportsSummary, exportButton, copy);
-    actions.append(otherExports, add, cancelJob);
+    actions.append(ankiOfflineMessage, otherExports, add, cancelJob);
 
     modal.body.append(intro, filterSection, duplicatesSection, skippedHeading, list, setup, progress, actions);
 
@@ -708,6 +712,7 @@
       ];
       connectionStatus.textContent = statusParts.join(" · ");
       connectionStatus.classList.toggle("bad", !connections.yomitan.ok);
+      ankiOfflineMessage.hidden = Boolean(connections.anki.ok);
       exportButton.disabled = !connections.yomitan.ok || !hasTermFormat;
       add.disabled = !connections.yomitan.ok || !connections.anki.ok || !hasTermFormat;
       if (!connections.yomitan.ok) {
@@ -719,6 +724,7 @@
       state.connections = {yomitan: {ok: false}, anki: {ok: false}};
       connectionStatus.textContent = error?.message || String(error);
       connectionStatus.classList.add("bad");
+      ankiOfflineMessage.hidden = false;
     }
   }
 
