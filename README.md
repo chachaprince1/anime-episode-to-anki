@@ -22,31 +22,81 @@ Your existing Yomitan dictionaries and card formats are used to create the cards
 
 ## Install the Extension
 
-1. Unzip the extension if necessary.
-2. In Chrome, open `chrome://extensions`.
-3. Turn on **Developer mode**.
-4. Click **Load unpacked**.
-5. Select the extension folder.
+These steps assume Yomitan and Anki are already installed and configured.
+Do not click individual `.js`, `.html`, or `.json` files on GitHub. Those files
+work together as one Chrome extension.
 
-The setup page should open automatically.
+### 1. Download the extension from GitHub
 
-Keep the extension folder on your computer after installing it.
+1. Open the [Anime Episode to Anki GitHub page](https://github.com/chachaprince1/anime-episode-to-anki).
+2. Near the upper-right part of the file list, click the green **Code** button.
+3. In the menu that opens, click **Download ZIP**.
+4. Wait for the download to finish. The file normally appears in your
+   **Downloads** folder and is named `anime-episode-to-anki-main.zip`.
+
+### 2. Unzip the download
+
+#### macOS
+
+1. Open **Finder**.
+2. Click **Downloads** in the left sidebar.
+3. Find `anime-episode-to-anki-main.zip`.
+4. Double-click the ZIP file once. Finder creates a normal folder named
+   `anime-episode-to-anki-main` beside it.
+5. Drag that new folder somewhere permanent, such as **Documents**. Do not
+   leave it in the Trash and do not delete it after installing the extension.
+
+#### Windows
+
+1. Open **File Explorer**.
+2. Click **Downloads** in the left sidebar.
+3. Right-click `anime-episode-to-anki-main.zip`.
+4. Click **Extract All…**.
+5. Leave **Show extracted files when complete** checked, then click
+   **Extract**.
+6. Move the extracted `anime-episode-to-anki-main` folder somewhere permanent,
+   such as **Documents**. Do not delete it after installing the extension.
+
+### 3. Load the folder into Chrome
+
+1. Open Google Chrome.
+2. Click the address bar at the top of Chrome.
+3. Type `chrome://extensions` and press **Return** on macOS or **Enter** on
+   Windows.
+4. Turn on **Developer mode** using the switch in the upper-right corner.
+5. Click **Load unpacked** in the upper-left corner.
+6. In the folder window, select the extracted
+   `anime-episode-to-anki-main` folder. Select the folder itself, not the ZIP
+   file and not one of the files inside it.
+7. Click **Select** or **Open**. If Chrome says it cannot find a manifest,
+   you selected the wrong folder: go back and select the folder that directly
+   contains `manifest.json`.
+8. Chrome should add a card named **jpdb → Yomitan → Anki** to the Extensions
+   page, and the extension's setup page should open automatically.
+
+Keep the extracted folder on your computer. Chrome loads the extension from
+that exact location every time it starts.
 
 ## Connect Your Account
 
-On the setup page, click:
+1. Sign in to your free jpdb account in the same Chrome profile where you
+   installed the extension.
+2. Return to the extension's setup tab.
+3. Find the **jpdb** row. It should say **Action needed**.
+4. Click **Connect signed-in account**.
+5. Chrome opens jpdb's settings page. Scroll to the API-key section near the
+   bottom of that page.
+6. Click the extension's **Use this API key** button. Do not post or send the
+   key to anyone.
+7. Wait for the message confirming that the key was verified and saved.
+8. Return to the extension setup tab. The jpdb row should now say
+   **Connected**. If it does not update, click **Check again** at the top of
+   the setup page.
 
-**Connect signed-in account**
+## Install the Required Yomitan API Helper
 
-The extension will guide you through connecting your account on the website.
-
-You will need to be signed into your free account.
-
-If the setup page shows **Action needed**, follow the instructions for that item. Everything else is handled automatically.
-
-## Set Up Yomitan
-
-The extension needs permission to use Yomitan when creating cards.
+Yomitan itself may already be fully configured, but this extension also needs
+the included local API helper so it can ask Yomitan to build cards.
 
 ### On Mac
 
@@ -73,10 +123,29 @@ Then:
 
 You normally do not need to change anything else.
 
+### On Windows
+
+1. Open the extracted `anime-episode-to-anki-main` folder in File Explorer.
+2. Find `install-yomitan-api-windows.bat`.
+3. Double-click the file.
+4. If Windows displays a protection warning, click **More info**, confirm the
+   filename, and click **Run anyway**.
+5. Keep the black installer window open until it says it has finished.
+6. In Chrome, click the puzzle-piece **Extensions** icon, find **Yomitan**, and
+   open its settings.
+7. Turn on **Advanced** if it is off.
+8. Open **General**, turn on **Enable Yomitan API**, and accept Chrome's
+   permission prompt if one appears.
+
+After either installer finishes, return to the extension setup page and click
+**Check again**. Yomitan should show **Connected**.
+
 ## Set Up Anki
 
-1. Install **AnkiConnect** if you do not already have it.
-2. Open **Anki Desktop**.
+1. Open **Anki Desktop** and leave it running.
+2. On the extension setup page, click **Check again**.
+3. Confirm that AnkiConnect shows **Connected**. If it does not, confirm that
+   your existing AnkiConnect add-on is enabled and restart Anki.
 
 That is it. AnkiConnect's normal settings work with the extension.
 
@@ -84,66 +153,72 @@ The setup page automatically checks whether the website, Yomitan, and Anki are r
 
 ## Add an Episode to Anki
 
-On an anime page, you will see a new **Add to Anki** button beside each episode.
+On a jpdb anime page, you will see a new **Add to Anki** button beside each
+episode.
 
 ### 1. Choose an Episode
 
-Click **Add to Anki**.
-
-The episode will be added to your account and opened.
-
-Click **Continue** when prompted.
-
-If the episode deck already exists, use:
-
-**Add deck to Anki with Yomitan**
+1. Open Anki Desktop and leave it running during the export.
+2. In Chrome, open jpdb's anime difficulty list and open an anime's detail
+   page.
+3. Find the episode you want and click **Add to Anki** beside that episode.
+4. jpdb adds the episode to your account and opens its deck page.
+5. On that deck page, click **Continue: review Episode … for Anki**.
+6. If you opened a deck directly instead, click
+   **Add deck to Anki with Yomitan**.
+7. Wait while the extension retrieves the vocabulary. The review window opens
+   when it is ready.
 
 ### 2. Review the Vocabulary
 
-The extension shows the vocabulary before adding anything to Anki.
-
-Common low-value words, particles, and fillers are hidden automatically.
-
-You can:
-
-* Include or remove individual words
-* Ignore common beginner vocabulary
-* Filter very uncommon words by frequency
-
-These filters are optional.
+1. Read the count in the upper-right corner of the review window. It shows how
+   many words are included and skipped.
+2. Under **Skip word sets**, check every category you want removed from the
+   export. Available choices include particles, vocalizations, semantic
+   grammar, title honorifics, title positions, JLPT N5/N4 vocabulary, and words
+   used only once in the episode.
+3. Use the frequency filters if you want to exclude uncommon words. Frequency
+   data comes from Yomitan and may take a little time to finish loading.
+4. Scroll to **All Skipped Words: Toggle to Keep**. Every checked row is being
+   skipped. Uncheck a row to restore that particular word.
+5. Under **Skip duplicates**, choose either the narrower same-jpdb-card check,
+   the broader same-word check, or neither. The two checks cannot be enabled at
+   the same time.
+6. Confirm that the included/skipped count changes when you change a filter.
 
 ### 3. Choose Your Anki Settings
 
-Select:
-
-* The **Anki deck** where you want the cards
-* The **Yomitan card format** you want to use
-
-The extension uses that Yomitan format to create the cards.
+1. Open the **Destination deck** dropdown.
+2. Click the Anki deck that should receive the cards. The suggested deck marked
+   **(new)** will be created automatically if you select it.
+3. Leave **Include Yomitan media** checked if you want audio and dictionary
+   images. Media makes the export slower.
+4. If red text says Anki is offline, open Anki Desktop and refresh the jpdb
+   page before continuing.
 
 ### 4. Add the Cards
 
-Click:
-
-**Add to Anki**
-
-Yomitan creates the card information and the extension sends the finished cards to Anki.
-
-Duplicates are skipped automatically.
-
-When it finishes, you will see how many cards were:
-
-* Added
-* Skipped
-* Unable to be added
+1. Click **Export as APKG**.
+2. Leave Chrome and Anki open while Yomitan creates every selected card. The
+   progress display shows the word currently being processed.
+3. Wait until the button changes to **View Export**.
+4. The cards have been added to the destination deck in Anki, and Chrome has
+   also downloaded an `.apkg` copy.
+5. Click **View Export** to open the download's location on your computer.
+6. Read the completion line for the number added, skipped as duplicates, or
+   failed. Failed entries do not cancel cards that were already added.
 
 ## Other Export Options
 
-Most users should use **Add to Anki**.
+Most users should use **Export as APKG**.
 
 There are also two optional alternatives:
 
-**Export TSV**
+1. Click **Other exports** below the review list.
+2. Click **Anki .txt** to download an Anki-importable text file, or click
+   **Copy for Yomitan** to copy the selected words for Yomitan's note generator.
+
+**Anki .txt**
 Creates a text file that can be imported into Anki manually.
 
 **Copy for Yomitan**
