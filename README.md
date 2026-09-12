@@ -26,6 +26,21 @@ These steps assume Yomitan and Anki are already installed and configured.
 Do not click individual `.js`, `.html`, or `.json` files on GitHub. Those files
 work together as one Chrome extension.
 
+### Easier student setup
+
+If you are distributing both this extension and ImmersionKit Full Card Miner,
+download the [Student Setup package](student-setup-installer.zip). Unzip it,
+then double-click `setup-macos.command` on macOS or `setup-windows.bat` on
+Windows. The launcher copies both extensions to a permanent per-user folder,
+opens Chrome's extensions page, opens the exact folder to select, copies its
+path to the clipboard, and opens a setup wizard with connection checks.
+
+Chrome still requires two final clicks for local extensions: turn on
+**Developer mode**, click **Load unpacked**, and select each extension folder.
+The wizard then points to the included Yomitan API helper installer. This is
+the shortest supported setup without publishing the extensions in the Chrome
+Web Store.
+
 ### 1. Download the extension from GitHub
 
 1. Open the [Anime Episode to Anki GitHub page](https://github.com/chachaprince1/anime-episode-to-anki).
