@@ -6,6 +6,15 @@ set "INSTALL_DIRECTORY=%LOCALAPPDATA%\Yomitan API"
 set "INSTALLER_URL=https://raw.githubusercontent.com/yomidevs/yomitan-api/%REVISION%/install_yomitan_api.py"
 set "HELPER_URL=https://raw.githubusercontent.com/yomidevs/yomitan-api/%REVISION%/yomitan_api.py"
 
+rem The official installer registers this host under HKCU. Avoid downloading or
+rem reinstalling it on every setup run when that registration is still present.
+reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\yomitan_api" >nul 2>nul
+if not errorlevel 1 (
+  echo Yomitan API helper is already registered for this Windows user.
+  start "" "chrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general"
+  exit /b 0
+)
+
 where py >nul 2>nul
 if errorlevel 1 (
   where winget >nul 2>nul

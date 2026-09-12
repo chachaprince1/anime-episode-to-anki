@@ -1,7 +1,24 @@
-# Anime Study Tools Student Setup
+# Anime Study Tools — student setup
 
-This package stages both extensions: `anime-episode-to-anki` and `immersionkit-full-card-extension`.
+## 1. Download and open the package
 
-Chrome requires the student to perform the final **Developer mode → Load unpacked** step. The launchers copy the extensions into stable per-user folders, open Chrome’s extensions page, reveal the folder, copy its path, and open the wizard.
+On GitHub, click **Code → Download ZIP**. When it finishes:
 
-On macOS, double-click `setup-macos.command`. On Windows, double-click `setup-windows.bat`. Each launcher stages the extensions, opens Chrome's extensions page, reveals the staged folder, copies its path, checks ports 19633 and 8765, and opens the wizard with the results. Then enable Developer mode, click Load unpacked, and select each extension folder (not the parent folder). The wizard's links open Chrome/Yomitan/Anki pages; it does not show controls that depend on a background bridge. Run the launcher again for repairs or updates.
+- **Mac:** double-click the ZIP to extract it. Open the extracted folder. If macOS blocks the launcher, right-click `setup-macos.command`, choose **Open**, then choose **Open** again.
+- **Windows:** right-click the ZIP, choose **Extract All**, and open the extracted folder. If Windows shows **More info**, choose **Run anyway** for the launcher.
+
+Double-click `setup-macos.command` on Mac or `setup-windows.bat` on Windows. The launcher copies both extensions to a stable user folder, opens Chrome, opens the folder, and checks Anki/Yomitan.
+
+## 2. Load the two extensions
+
+In Chrome, turn on **Developer mode** in the upper-right corner, then click **Load unpacked**. Select these child folders one at a time, not the parent folder: `anime-episode-to-anki`, then `immersionkit-full-card-extension`.
+
+On Mac, press **Command-Shift-G** in the folder picker and use the path copied by the launcher. On Windows, press **Ctrl-L** in File Explorer and use the path shown by the launcher. Confirm that both names appear at `chrome://extensions`.
+
+## 3. Finish Yomitan and Anki setup
+
+Open the `anime-episode-to-anki` folder inside the staged Extensions folder. On Mac, double-click `install-yomitan-api-macos.command`. On Windows, double-click `install-yomitan-api-windows.bat`. If your computer asks whether to open or run the helper, choose **Open** or **Run**.
+
+In Yomitan, open settings, enable **Advanced**, then enable **Yomitan API**. Keep Anki open with AnkiConnect installed. Return to the setup page and confirm both connections show online.
+
+If a connection is offline or an extension is missing, start Anki/Yomitan and run the platform launcher again. It is safe for repairs and updates.

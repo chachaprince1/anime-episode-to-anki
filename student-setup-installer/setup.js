@@ -1,1 +1,6 @@
-const p=new URLSearchParams(location.search),y=p.get('yomitan')==='ok',a=p.get('anki')==='ok';document.querySelector('#dest').textContent=p.get('dest')||'the staged Extensions folder';const s=document.querySelector('#checkStatus');s.textContent=`Yomitan API (127.0.0.1:19633): ${y?'ONLINE':'OFFLINE'}\nAnkiConnect (127.0.0.1:8765): ${a?'ONLINE':'OFFLINE'}`;s.className=`status ${y&&a?'ok':'warn'}`;
+const params=new URLSearchParams(location.search);
+const dest=params.get('dest')||'the staged Extensions folder';
+const anime=`${dest}/anime-episode-to-anki`, immersion=`${dest}/immersionkit-full-card-extension`;
+for(const [id,value] of [['animePath',anime],['animePath2',anime],['immersionPath',immersion]])document.querySelector('#'+id).textContent=value;
+const status=document.querySelector('#checkStatus');
+const y=params.get('yomitan')==='ok',a=params.get('anki')==='ok';status.textContent=`Yomitan API (/serverVersion): ${y?'ONLINE':'OFFLINE'}\nAnkiConnect (version action): ${a?'ONLINE':'OFFLINE'}`;status.className=`status ${y&&a?'ok':'warn'}`;
