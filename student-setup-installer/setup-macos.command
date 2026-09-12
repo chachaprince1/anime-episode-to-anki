@@ -26,4 +26,4 @@ curl --silent --show-error --fail --max-time 2 -X POST -H 'Content-Type: applica
 curl --silent --show-error --fail --max-time 2 -X POST -H 'Content-Type: application/json' -d '{"action":"version","version":6}' http://127.0.0.1:8765 | grep -q 'result' && anki=ok || true
 DEST_QUERY=${DEST//%/%25}; DEST_QUERY=${DEST_QUERY// /%20}; DEST_QUERY=${DEST_QUERY//#/%23}; DEST_QUERY=${DEST_QUERY//\?/%3F}; DEST_QUERY=${DEST_QUERY//&/%26}; DEST_QUERY=${DEST_QUERY//+/%2B}; DEST_QUERY=${DEST_QUERY//=/%3D}
 BASE_QUERY=${BASE//%/%25}; BASE_QUERY=${BASE_QUERY// /%20}; BASE_QUERY=${BASE_QUERY//#/%23}; BASE_QUERY=${BASE_QUERY//\?/%3F}; BASE_QUERY=${BASE_QUERY//&/%26}; BASE_QUERY=${BASE_QUERY//+/%2B}; BASE_QUERY=${BASE_QUERY//=/%3D}
-open "file://$BASE_QUERY/setup.html?dest=$DEST_QUERY&yomitan=$yomitan&anki=$anki"
+open -a "Google Chrome" "file://$BASE_QUERY/setup.html?dest=$DEST_QUERY&yomitan=$yomitan&anki=$anki"
