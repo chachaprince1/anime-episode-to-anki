@@ -7,6 +7,7 @@
   const Core = globalThis.JYACore;
   const JPDB_ORIGIN = "https://jpdb.io";
   const EPISODE_VOCABULARY_PATH = /^\/anime\/(\d+)\/([^/]+)\/(\d+)\/([^/]+)\/vocabulary-list\/?$/;
+  const ANIME_DETAILS_PATH = /^\/anime\/(\d+)\/([^/]+)\/?$/;
   const DECK_PATH = /^\/deck\/?$/;
   let deckImportOpen = false;
   let hasJpdbApiKey = false;
@@ -104,6 +105,7 @@
   }
 
   function injectEpisodeButtons() {
+    if (!ANIME_DETAILS_PATH.test(location.pathname)) return;
     for (const link of document.querySelectorAll("a[href]")) {
       let matches = false;
       try {
@@ -786,7 +788,7 @@
   }
 
   async function initialize() {
-    if (location.pathname.startsWith("/anime/")) {
+    if (ANIME_DETAILS_PATH.test(location.pathname)) {
       try {
         hasJpdbApiKey = Boolean((await getSettings()).hasJpdbApiKey);
       } catch (_) {
@@ -795,7 +797,7 @@
       injectEpisodeButtons();
       const observer = new MutationObserver(injectEpisodeButtons);
       observer.observe(document.documentElement, {childList: true, subtree: true});
-    } else {
+    } else if (DECK_PATH.test(location.pathname)) {
       injectDeckButton();
     }
     await consumePendingImport();
