@@ -220,8 +220,8 @@ final class InstallerWindowController: NSWindowController {
         stack.addArrangedSubview(title); stack.addArrangedSubview(body)
         if let callbackWarning { let note = NSTextField(wrappingLabelWithString: callbackWarning); note.maximumNumberOfLines = 0; note.textColor = .secondaryLabelColor; stack.addArrangedSubview(note) }
         if screen == "step1" { addButton("Next — I turned it on", #selector(nextStep)); addButton("Open Chrome again", #selector(openChrome)) }
-        if screen == "step2" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Copy address again", #selector(copyAnime)); addButton("Open Chrome again", #selector(openChrome)) }
-        if screen == "step3" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Copy address again", #selector(copyImmersion)); addButton("Open Chrome again", #selector(openChrome)) }
+        if screen == "step2" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyAnime)); addButton("Open Chrome again", #selector(openChrome)) }
+        if screen == "step3" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyImmersion)); addButton("Open Chrome again", #selector(openChrome)) }
         if screen == "checking" { addButton("Check again", #selector(checkConnections)) }
         if screen == "complete" { addButton("Repair", #selector(repair)) }
         if screen == "yomitan" { addButton("Open Yomitan settings", #selector(openYomitan)); addButton("Check again", #selector(checkConnections)) }
@@ -229,8 +229,8 @@ final class InstallerWindowController: NSWindowController {
         if screen == "error" { addButton("Try again", #selector(repair)); addButton("Open Chrome again", #selector(openChrome)) }
     }
     private func addButton(_ title: String, _ action: Selector) { let b = NSButton(title: title, target: self, action: action); b.bezelStyle = .rounded; b.controlSize = .large; b.font = .systemFont(ofSize: 16, weight: .medium); stack.addArrangedSubview(b) }
-    private func showAnimeStep() { screen = "step2"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")); Installer.shared.openChromeExtensions(); render() }
-    private func showImmersionStep() { screen = "step3"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")); Installer.shared.openChromeExtensions(); render() }
+    private func showAnimeStep() { screen = "step2"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")); render() }
+    private func showImmersionStep() { screen = "step3"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")); render() }
     @objc private func nextStep() {
         if screen == "step1" {
             Installer.shared.callbackServer.loaded.contains("anime") ? showImmersionStep() : showAnimeStep()
@@ -240,8 +240,9 @@ final class InstallerWindowController: NSWindowController {
             screen = "checking"; render(); checkConnections()
         }
     }
-    @objc private func copyAnime() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")); Installer.shared.openChromeExtensions() }
-    @objc private func copyImmersion() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")); Installer.shared.openChromeExtensions() }
+    @objc private func backStep() { if screen == "step3" { showAnimeStep() } else if screen == "step2" { screen = "step1"; render() } }
+    @objc private func copyAnime() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")) }
+    @objc private func copyImmersion() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")) }
     @objc private func openChrome() { Installer.shared.openChromeExtensions() }
     @objc private func openYomitan() { Installer.shared.openChrome("chrome-extension://\(yomitanExtensionID)/settings.html#general") }
     @objc private func openAnki() { NSWorkspace.shared.open(URL(string: "anki:")!) }

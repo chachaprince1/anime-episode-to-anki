@@ -26,6 +26,7 @@ internal sealed class InstallerForm : Form
     private readonly Label _status = new() { AutoSize = false, Height = 130, Font = new Font(SystemFonts.DefaultFont.FontFamily, 15) };
     private readonly Label _connections = new() { AutoSize = false, Height = 45, ForeColor = Color.DimGray };
     private readonly Button _next = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
+    private readonly Button _back = new() { AutoSize = true, Text = "Back", Visible = false, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
     private readonly Button _copyAgain = new() { AutoSize = true, Text = "Copy address again", Visible = false, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
     private readonly Button _openChrome = new() { AutoSize = true, Text = "Open Chrome again", Visible = false, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
     private readonly CallbackServer _callback = new();
@@ -40,6 +41,7 @@ internal sealed class InstallerForm : Form
         MinimumSize = new Size(600, 380);
         StartPosition = FormStartPosition.CenterScreen;
         _next.Click += async (_, _) => await NextAsync();
+        _back.Click += (_, _) => Back();
         _copyAgain.Click += (_, _) => _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki");
         _openChrome.Click += (_, _) => OpenRecoveryTarget();
         _callback.ExtensionLoaded += extension => BeginInvoke((Action)(() =>
@@ -49,7 +51,7 @@ internal sealed class InstallerForm : Form
             else if (extension.StartsWith("Immersion") && _screen == "step3") { _screen = "checking"; Render(); _ = CheckConnectionsAsync(); }
         }));
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(26), FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
-        layout.Controls.AddRange([_title, _status, _next, _copyAgain, _openChrome, _connections]);
+        layout.Controls.AddRange([_title, _status, _next, _back, _copyAgain, _openChrome, _connections]);
         foreach (Control control in layout.Controls) control.Margin = new Padding(0, 0, 0, 13);
         Controls.Add(layout);
         Shown += async (_, _) =>
@@ -94,6 +96,7 @@ internal sealed class InstallerForm : Form
         _status.Text = body;
         _next.Text = _screen switch { "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
         _next.Enabled = _screen != "installing";
+        _back.Visible = _screen is "step2" or "step3";
         _copyAgain.Visible = _screen is "step2" or "step3";
         _openChrome.Text = _screen switch { "yomitan" => "Open Yomitan settings", "anki" => "Open Anki", _ => "Open Chrome again" };
         _openChrome.Visible = _screen is "step1" or "step2" or "step3" or "error" or "yomitan" or "anki";
@@ -106,6 +109,12 @@ internal sealed class InstallerForm : Form
         else if (_screen == "step3" || _screen == "checking" || _screen == "yomitan" || _screen == "anki") { await CheckConnectionsAsync(); return; }
         else if (_screen == "complete") { Close(); return; }
         else if (_screen == "error") { _screen = "installing"; Render(); await InstallAsync(); return; }
+        Render();
+    }
+    private void Back()
+    {
+        if (_screen == "step3") { _screen = "step2"; _installer.CopyPath("anime-episode-to-anki"); }
+        else if (_screen == "step2") _screen = "step1";
         Render();
     }
     private void OpenRecoveryTarget()
@@ -201,7 +210,6 @@ internal sealed class StudyInstaller
     {
         var path = Path.Combine(_extensionRoot, extension);
         Clipboard.SetText(path);
-        OpenChromeExtensions();
     }
 
     private static string? ChromePath()
