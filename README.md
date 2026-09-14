@@ -9,28 +9,31 @@ do not need separate installer downloads for the two extensions.
 
 ## Student install: download one file
 
-Do **not** download the source code or open the individual files shown on GitHub.
-Use one installer from the [Releases page](https://github.com/chachaprince1/anime-episode-to-anki/releases):
+Download the installer for your computer from the [Releases page](https://github.com/chachaprince1/anime-episode-to-anki/releases) and open it. The installer puts both extensions and the Yomitan helper in **the permanent location** automatically. You do not move folders, install Python, or run scripts.
 
 * **Mac:** download `Anime-Study-Tools-Installer-mac.zip`. Double-click the
   downloaded ZIP, then double-click **Anime Study Tools Installer.app**. If
   macOS blocks it, open **System Settings → Privacy & Security**, scroll to
   **Security**, click **Open Anyway**, enter your Mac password, and click
-  **Open**. The app prepares both Chrome extensions and installs the Yomitan
-  helper automatically; no Python, Terminal, helper script, or moving folders
-  is required.
+  **Open**.
 * **Windows:** download `Anime-Study-Tools-Installer-windows.exe` and
   double-click it. If SmartScreen appears, click **More info**, then **Run
-  anyway**. The app installs both Chrome extensions and the Yomitan helper
-  automatically; no Python, Command Prompt, helper script, copying, or moving
-  folders is required.
+  anyway**.
 
-The installer opens Chrome and copies the exact first folder path. Chrome does
-not allow an outside app to approve unpacked extensions. In Chrome, turn on
-**Developer mode** and click **Load unpacked**. On Mac, press **Command-Shift-G**
-and **Command-V**; on Windows, press **Ctrl-L** and **Ctrl-V**. Press Return or
-Enter, then approve the folder. Use the installer’s **Copy ImmersionKit path**
-button and repeat once for the second extension. That is the only manual setup.
+The installer opens Chrome and shows one instruction at a time:
+
+1. Turn on **Developer mode** in the upper-right corner.
+2. For **Anime Episode to Anki**, click **Load unpacked**. The correct folder
+   address is already copied. On Mac press **Command-Shift-G**, **Command-V**,
+   **Return**, then **Open**. On Windows press **Ctrl-L**, **Ctrl-V**, **Enter**,
+   then **Select Folder**.
+3. Repeat **Load unpacked** for **ImmersionKit Full Card Miner**. The installer
+   copies the second path automatically and brings Chrome forward.
+
+Finder and File Explorer do not open. If automatic confirmation is unavailable,
+click the clearly labeled **Next** button after loading an extension. The
+installer also provides **Copy address again** and **Open Chrome again** buttons
+if you need them.
 
 The installers are unsigned, so the Gatekeeper/SmartScreen click above is
 expected. Verify the release checksum in `SHA256SUMS` if you need to confirm a
@@ -62,7 +65,8 @@ These steps assume Yomitan and Anki are already installed and configured.
 Do not click individual `.js`, `.html`, or `.json` files on GitHub. Those files
 work together as one Chrome extension.
 
-### Legacy manual setup for developers
+<details>
+<summary>Developer-only manual installation</summary>
 
 The source-folder steps below are retained only for people developing the
 extension. Students should use the one-file installer above.
@@ -118,6 +122,8 @@ extension. Students should use the one-file installer above.
 Keep the extracted folder on your computer. Chrome loads the extension from
 that exact location every time it starts.
 
+</details>
+
 ## Connect Your Account
 
 1. Sign up / sign in to your free account (the anime website) in the same Chrome profile where you
@@ -134,50 +140,12 @@ that exact location every time it starts.
    **Connected**. If it does not update, click **Check again** at the top of
    the setup page.
 
-## Install the Required Yomitan API Helper
+## Finish Yomitan Setup
 
-Yomitan itself may already be fully configured, but this extension also needs
-the included local API helper so it can ask Yomitan to build cards.
-
-### On Mac
-
-Find this file inside the extension folder:
-
-`install-yomitan-api-macos.command`
-
-Double-click it.
-
-If macOS blocks it:
-
-1. Right-click the file.
-2. Choose **Open**.
-3. Choose **Open** again.
-
-The installer should open Yomitan's settings when it finishes.
-
-Then:
-
-2. Open **General**.
-3. Turn on **Enable Yomitan API**.
-4. Accept Chrome's permission request if one appears.
-
-You normally do not need to change anything else.
-
-### On Windows
-
-1. Open the extracted `anime-episode-to-anki-main` folder in File Explorer.
-2. Find `install-yomitan-api-windows.bat`.
-3. Double-click the file.
-4. If Windows displays a protection warning, click **More info**, confirm the
-   filename, and click **Run anyway**.
-5. Keep the black installer window open until it says it has finished.
-6. In Chrome, click the puzzle-piece **Extensions** icon, find **Yomitan**, and
-   open its settings.
-8. Open **General**, turn on **Enable Yomitan API**, and accept Chrome's
-   permission prompt if one appears.
-
-After either installer finishes, return to the extension setup page and click
-**Check again**. Yomitan should show **Connected**.
+The installer already puts the Yomitan helper in the permanent location. If it
+shows **Yomitan needs one setting**, click **Open Yomitan settings**. Under
+**General**, turn on **Advanced**, then turn on **Enable Yomitan API**. Return
+to the installer and click **Check again**.
 
 ## Set Up Anki
 

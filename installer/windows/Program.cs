@@ -22,56 +22,95 @@ internal static class Program
 
 internal sealed class InstallerForm : Form
 {
-    private readonly Label _status = new() { AutoSize = false, Height = 55 };
+    private readonly Label _status = new() { AutoSize = false, Height = 170 };
     private readonly Label _connections = new() { AutoSize = false, Height = 45, ForeColor = Color.DimGray };
-    private readonly Button _install = new() { Text = "Install and open Chrome", AutoSize = true };
+    private readonly Button _next = new() { AutoSize = true };
+    private readonly Button _copyAgain = new() { AutoSize = true, Text = "Copy address again", Visible = false };
+    private readonly Button _openChrome = new() { AutoSize = true, Text = "Open Chrome again", Visible = false };
     private readonly CallbackServer _callback = new();
     private readonly StudyInstaller _installer = new();
     private readonly HashSet<string> _loadedExtensions = new(StringComparer.Ordinal);
+    private string _screen = "installing";
 
     public InstallerForm()
     {
         Text = "Anime Study Tools Installer";
-        ClientSize = new Size(700, 510);
-        MinimumSize = new Size(650, 460);
+        ClientSize = new Size(620, 390);
+        MinimumSize = new Size(560, 340);
         StartPosition = FormStartPosition.CenterScreen;
-        var title = new Label { Text = "Install Anime Study Tools", Font = new Font(SystemFonts.DefaultFont.FontFamily, 20, FontStyle.Bold), AutoSize = true };
-        var intro = new Label { Text = "This app prepares both extensions and installs the Yomitan helper for your Windows account. Chrome requires one approval for each unpublished extension; everything else is automatic.", AutoSize = false, Height = 44 };
-        var steps = new Label { Text = "When Chrome opens:\r\n1. Turn on Developer mode.\r\n2. Click Load unpacked. In Chrome’s folder window, press Ctrl+L, press Ctrl+V, press Enter, then click Select Folder. The correct Anime Episode to Anki path is already copied.\r\n3. Return here and click “Copy ImmersionKit path.” In Chrome, click Load unpacked again and repeat Ctrl+L, Ctrl+V, Enter, Select Folder.\r\n\r\nYou do not need to move, unzip, install Python, or edit any folders.", AutoSize = false, Height = 155 };
-        var showImmersion = new Button { Text = "Copy ImmersionKit path", AutoSize = true };
-        var check = new Button { Text = "Check connections / repair", AutoSize = true };
-        _install.Click += async (_, _) => await InstallAsync();
-        showImmersion.Click += (_, _) => _installer.Reveal("immersionkit-full-card-extension");
-        check.Click += async (_, _) => await InstallAsync();
+        _next.Click += async (_, _) => await NextAsync();
+        _copyAgain.Click += (_, _) => _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki");
+        _openChrome.Click += (_, _) => OpenRecoveryTarget();
         _callback.ExtensionLoaded += extension => BeginInvoke((Action)(() =>
         {
             _loadedExtensions.Add(extension);
-            _status.Text = _loadedExtensions.Count == 2
-                ? "Chrome loaded both extensions. Setup is complete."
-                : $"Chrome loaded {extension}. One Chrome approval remains.";
+            if (extension.StartsWith("Anime") && _screen == "step2") { _screen = "step3"; _installer.CopyPath("immersionkit-full-card-extension"); Render(); }
+            else if (extension.StartsWith("Immersion") && _screen == "step3") { _screen = "checking"; Render(); _ = CheckConnectionsAsync(); }
         }));
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(26), FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
-        layout.Controls.AddRange([title, intro, _install, _status, steps, showImmersion, check, _connections]);
+        layout.Controls.AddRange([_status, _next, _copyAgain, _openChrome, _connections]);
         foreach (Control control in layout.Controls) control.Margin = new Padding(0, 0, 0, 13);
         Controls.Add(layout);
         Shown += async (_, _) =>
         {
             if (!_callback.Start(out var warning)) _status.Text = warning;
+            Render();
             await InstallAsync();
         };
     }
 
     private async Task InstallAsync()
     {
-        _install.Enabled = false;
+        _next.Enabled = false;
         try
         {
             _installer.Install();
-            _status.Text = "The extensions and Yomitan helper are prepared. Chrome is open, and the Anime Episode to Anki folder path is already copied. Complete the two Chrome approval steps below.";
+            _screen = "step1"; Render(); StudyInstaller.OpenChromeExtensions();
         }
-        catch (Exception error) { _status.Text = error.Message; }
-        finally { _install.Text = "Repair and reopen Chrome"; _install.Enabled = true; }
-        _connections.Text = await _installer.ConnectionSummaryAsync();
+        catch (Exception error) { _screen = "error"; Render(error.Message); }
+        finally { _next.Enabled = true; }
+    }
+
+    private void Render(string? error = null)
+    {
+        var (title, body) = _screen switch {
+            "step1" => ("Turn on Developer mode", "Look at the Chrome window. In the upper-right corner, turn on the switch labeled Developer mode."),
+            "step2" => ("Add Anime Episode to Anki", "The correct folder address is already copied.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
+            "step3" => ("Add ImmersionKit Full Card Miner", "The correct folder address is already copied.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
+            "checking" => ("Checking your setup", "You do not need to do anything yet."),
+            "complete" => ("You’re all set", "Both extensions and the Yomitan helper are installed in the permanent location. You can close this installer."),
+            "yomitan" => ("Yomitan needs one setting", "Open Yomitan settings, open Advanced, then enable Yomitan API.\r\n\r\nchrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general"),
+            "anki" => ("Open Anki", "Open Anki Desktop, then return here to check again."),
+            "error" => ("Something needs attention", error ?? "Try opening Chrome again."),
+            _ => ("Getting everything ready", "This may take a moment. You do not need to do anything yet.")
+        };
+        _status.Text = title + "\r\n\r\n" + body;
+        _next.Text = _screen switch { "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
+        _next.Enabled = _screen != "installing";
+        _copyAgain.Visible = _screen is "step2" or "step3";
+        _openChrome.Text = _screen switch { "yomitan" => "Open Yomitan settings", "anki" => "Open Anki", _ => "Open Chrome again" };
+        _openChrome.Visible = _screen is "step1" or "step2" or "step3" or "error" or "yomitan" or "anki";
+        _connections.Visible = _screen is "checking" or "yomitan" or "anki";
+    }
+    private async Task NextAsync()
+    {
+        if (_screen == "step1") { _screen = _loadedExtensions.Any(value => value.StartsWith("Anime")) ? "step3" : "step2"; _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki"); }
+        else if (_screen == "step2") { _screen = "step3"; _installer.CopyPath("immersionkit-full-card-extension"); }
+        else if (_screen == "step3" || _screen == "checking" || _screen == "yomitan" || _screen == "anki") { await CheckConnectionsAsync(); return; }
+        else if (_screen == "complete") { Close(); return; }
+        else if (_screen == "error") { _screen = "installing"; Render(); await InstallAsync(); return; }
+        Render();
+    }
+    private void OpenRecoveryTarget()
+    {
+        if (_screen == "yomitan") StudyInstaller.OpenChromeUrl("chrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general");
+        else if (_screen == "anki") Process.Start(new ProcessStartInfo("anki:") { UseShellExecute = true });
+        else StudyInstaller.OpenChromeExtensions();
+    }
+    private async Task CheckConnectionsAsync()
+    {
+        var summary = await _installer.ConnectionSummaryAsync(); _connections.Text = summary;
+        _screen = summary.Contains("Yomitan API: not ready") ? "yomitan" : summary.Contains("AnkiConnect: not ready") ? "anki" : "complete"; Render();
     }
 }
 
@@ -91,9 +130,6 @@ internal sealed class StudyInstaller
         ExtractExtension("anime-episode-to-anki", AnimeFiles);
         ExtractExtension("immersionkit-full-card-extension", ImmersionFiles);
         InstallYomitanHost();
-        Clipboard.SetText(Path.Combine(_extensionRoot, "anime-episode-to-anki"));
-        OpenChromeExtensions();
-        Reveal("anime-episode-to-anki");
     }
 
     private void ExtractExtension(string name, IEnumerable<string> files)
@@ -154,11 +190,11 @@ internal sealed class StudyInstaller
         input.CopyTo(output);
     }
 
-    public void Reveal(string extension)
+    public void CopyPath(string extension)
     {
         var path = Path.Combine(_extensionRoot, extension);
         Clipboard.SetText(path);
-        Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+        OpenChromeExtensions();
     }
 
     private static string? ChromePath()
@@ -174,10 +210,12 @@ internal sealed class StudyInstaller
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static void OpenChromeExtensions()
+    public static void OpenChromeExtensions() => OpenChromeUrl("chrome://extensions/");
+
+    public static void OpenChromeUrl(string url)
     {
         var chrome = ChromePath() ?? throw new InvalidOperationException("Google Chrome was not found. Install Chrome, then click Repair and reopen Chrome.");
-        Process.Start(new ProcessStartInfo(chrome, "chrome://extensions/") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(chrome, url) { UseShellExecute = true });
     }
 
     public async Task<string> ConnectionSummaryAsync()
