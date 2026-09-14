@@ -11,6 +11,10 @@ do not need separate installer downloads for the two extensions.
 
 Download the installer for your computer from the [Releases page](https://github.com/chachaprince1/anime-episode-to-anki/releases) and open it. The installer puts both extensions and the Yomitan helper in **the permanent location** automatically. You do not move folders, install Python, or run scripts.
 
+Before it begins, the installer explains exactly what it adds: the two Chrome
+extensions and the Yomitan helper. It does **not** install system Python,
+Yomitan, Anki, or AnkiConnect.
+
 * **Mac:** download `Anime-Study-Tools-Installer-mac.zip`. Double-click the
   downloaded ZIP, then double-click **Anime Study Tools Installer.app**. If
   macOS blocks it, open **System Settings → Privacy & Security**, scroll to

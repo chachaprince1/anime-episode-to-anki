@@ -174,6 +174,7 @@ final class InstallerWindowController: NSWindowController {
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 14; stack.translatesAutoresizingMaskIntoConstraints = false
         content.addSubview(stack)
         NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 28), stack.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -28), stack.topAnchor.constraint(equalTo: content.topAnchor, constant: 26), stack.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -24)])
+        screen = "intro"
         render()
         Installer.shared.callbackServer.onLoad = { [weak self] loaded in
             guard let self else { return }
@@ -181,7 +182,7 @@ final class InstallerWindowController: NSWindowController {
             if loaded == "immersionkit" && self.screen == "step3" { self.screen = "checking"; self.render(); self.checkConnections() }
         }
         callbackWarning = Installer.shared.callbackServer.start()
-        install()
+        render()
     }
 
     @objc private func install() {
@@ -205,13 +206,14 @@ final class InstallerWindowController: NSWindowController {
         stack.arrangedSubviews.forEach { stack.removeArrangedSubview($0); $0.removeFromSuperview() }
         let titleText: String; let bodyText: String
         switch screen {
+        case "intro": titleText = "Before we start"; bodyText = "This installer will put the two Chrome extensions and the Yomitan helper in the permanent location.\n\nIt will not install Python, Yomitan, Anki, or AnkiConnect."
         case "installing": titleText = "Getting everything ready"; bodyText = "This may take a moment. You do not need to do anything yet."
         case "step1": titleText = "Turn on Developer mode"; bodyText = "Look at the Chrome window. In the upper-right corner, turn on the switch labeled Developer mode."
-        case "step2": titleText = "Add Anime Episode to Anki"; bodyText = "The correct folder address is already copied.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
-        case "step3": titleText = "Add ImmersionKit Full Card Miner"; bodyText = "The correct folder address is already copied.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
+        case "step2": titleText = "Add Anime Episode to Anki"; bodyText = "Chrome needs this address so it can keep using the extension. I already copied it for you.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
+        case "step3": titleText = "Add ImmersionKit Full Card Miner"; bodyText = "Chrome needs this address so it can keep using the extension. I already copied it for you.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
         case "checking": titleText = "Checking your setup"; bodyText = "You do not need to do anything yet."
         case "complete": titleText = "You’re all set"; bodyText = "Both extensions and the Yomitan helper are installed in the permanent location. You can close this installer."
-        case "yomitan": titleText = "Yomitan needs one setting"; bodyText = "Open Yomitan settings, open Advanced, then enable Yomitan API.\n\nchrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general"
+        case "yomitan": titleText = "Yomitan needs one setting"; bodyText = "The installer already added the Yomitan helper. Open Yomitan settings, open Advanced, then enable Yomitan API."
         case "anki": titleText = "Open Anki"; bodyText = "Open Anki Desktop, then return here to check again."
         default: titleText = "Something needs attention"; bodyText = error ?? "Try opening Chrome again."
         }
@@ -219,6 +221,7 @@ final class InstallerWindowController: NSWindowController {
         let body = NSTextField(wrappingLabelWithString: bodyText); body.maximumNumberOfLines = 0; body.font = .systemFont(ofSize: 17)
         stack.addArrangedSubview(title); stack.addArrangedSubview(body)
         if let callbackWarning { let note = NSTextField(wrappingLabelWithString: callbackWarning); note.maximumNumberOfLines = 0; note.textColor = .secondaryLabelColor; stack.addArrangedSubview(note) }
+        if screen == "intro" { addButton("Start setup", #selector(install)) }
         if screen == "step1" { addButton("Next — I turned it on", #selector(nextStep)); addButton("Open Chrome again", #selector(openChrome)) }
         if screen == "step2" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyAnime)); addButton("Open Chrome again", #selector(openChrome)) }
         if screen == "step3" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyImmersion)); addButton("Open Chrome again", #selector(openChrome)) }

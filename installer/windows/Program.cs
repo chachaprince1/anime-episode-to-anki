@@ -57,8 +57,9 @@ internal sealed class InstallerForm : Form
         Shown += async (_, _) =>
         {
             if (!_callback.Start(out var warning)) _status.Text = warning;
+            _screen = "intro";
             Render();
-            await InstallAsync();
+            await Task.CompletedTask;
         };
     }
 
@@ -82,19 +83,20 @@ internal sealed class InstallerForm : Form
     private void Render(string? error = null)
     {
         var (title, body) = _screen switch {
+            "intro" => ("Before we start", "This installer will put the two Chrome extensions and the Yomitan helper in the permanent location.\r\n\r\nIt will not install Python, Yomitan, Anki, or AnkiConnect."),
             "step1" => ("Turn on Developer mode", "Look at the Chrome window. In the upper-right corner, turn on the switch labeled Developer mode."),
-            "step2" => ("Add Anime Episode to Anki", "The correct folder address is already copied.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
-            "step3" => ("Add ImmersionKit Full Card Miner", "The correct folder address is already copied.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
+            "step2" => ("Add Anime Episode to Anki", "Chrome needs this address so it can keep using the extension. I already copied it for you.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
+            "step3" => ("Add ImmersionKit Full Card Miner", "Chrome needs this address so it can keep using the extension. I already copied it for you.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
             "checking" => ("Checking your setup", "You do not need to do anything yet."),
             "complete" => ("You’re all set", "Both extensions and the Yomitan helper are installed in the permanent location. You can close this installer."),
-            "yomitan" => ("Yomitan needs one setting", "Open Yomitan settings, open Advanced, then enable Yomitan API.\r\n\r\nchrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general"),
+            "yomitan" => ("Yomitan needs one setting", "The installer already added the Yomitan helper. Open Yomitan settings, open Advanced, then enable Yomitan API."),
             "anki" => ("Open Anki", "Open Anki Desktop, then return here to check again."),
             "error" => ("Something needs attention", error ?? "Try opening Chrome again."),
             _ => ("Getting everything ready", "This may take a moment. You do not need to do anything yet.")
         };
         _title.Text = title;
         _status.Text = body;
-        _next.Text = _screen switch { "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
+        _next.Text = _screen switch { "intro" => "Start setup", "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
         _next.Enabled = _screen != "installing";
         _back.Visible = _screen is "step2" or "step3";
         _copyAgain.Visible = _screen is "step2" or "step3";
@@ -104,6 +106,7 @@ internal sealed class InstallerForm : Form
     }
     private async Task NextAsync()
     {
+        if (_screen == "intro") { _screen = "installing"; Render(); await InstallAsync(); return; }
         if (_screen == "step1") { _screen = _loadedExtensions.Any(value => value.StartsWith("Anime")) ? "step3" : "step2"; _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki"); }
         else if (_screen == "step2") { _screen = "step3"; _installer.CopyPath("immersionkit-full-card-extension"); }
         else if (_screen == "step3" || _screen == "checking" || _screen == "yomitan" || _screen == "anki") { await CheckConnectionsAsync(); return; }
