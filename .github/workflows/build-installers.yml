@@ -48,7 +48,9 @@ jobs:
         shell: pwsh
         run: |
           Move-Item 'dist/windows/AnimeStudyToolsInstaller.exe' 'dist/Anime-Study-Tools-Installer-windows.exe'
-          (Get-FileHash 'dist/Anime-Study-Tools-Installer-windows.exe' -Algorithm SHA256).Hash.ToLowerInvariant() + '  Anime-Study-Tools-Installer-windows.exe' | Set-Content 'dist/SHA256SUMS-windows.txt'
+          $hash = (Get-FileHash 'dist/Anime-Study-Tools-Installer-windows.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
+          $line = $hash + '  Anime-Study-Tools-Installer-windows.exe' + "`n"
+          [IO.File]::WriteAllText('dist/SHA256SUMS-windows.txt', $line, [Text.UTF8Encoding]::new($false))
       - uses: actions/upload-artifact@v4
         with:
           name: Anime-Study-Tools-Installer-windows
@@ -70,11 +72,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --repo "$GITHUB_REPOSITORY" \
-            dist/Anime-Study-Tools-Installer-mac.zip \
-            dist/Anime-Study-Tools-Installer-windows.exe \
-            dist/SHA256SUMS-mac.txt \
-            dist/SHA256SUMS-windows.txt \
-            --title "Anime Study Tools Installer 1.0.0" \
-            --notes "One installer for macOS and one installer for Windows. Each prepares both Chrome extensions and installs the private Yomitan API helper. Chrome requires two guided Load unpacked approvals because the extensions are unpublished."
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber \
+              dist/Anime-Study-Tools-Installer-mac.zip \
+              dist/Anime-Study-Tools-Installer-windows.exe \
+              dist/SHA256SUMS-mac.txt \
+              dist/SHA256SUMS-windows.txt
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              dist/Anime-Study-Tools-Installer-mac.zip \
+              dist/Anime-Study-Tools-Installer-windows.exe \
+              dist/SHA256SUMS-mac.txt \
+              dist/SHA256SUMS-windows.txt \
+              --title "Anime Study Tools Installer 1.0.0" \
+              --notes "One installer for macOS and one installer for Windows. Each prepares both Chrome extensions and installs the private Yomitan API helper. Chrome requires two guided Load unpacked approvals because the extensions are unpublished."
+          fi
