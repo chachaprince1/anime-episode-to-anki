@@ -1,0 +1,79 @@
+name: Build student installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'installer-v*'
+    paths:
+      - 'installer/**'
+      - '.github/workflows/build-installers.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build one Mac app and ZIP
+        run: installer/build-macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Anime-Study-Tools-Installer-mac
+          path: |
+            dist/Anime-Study-Tools-Installer-mac.zip
+            dist/SHA256SUMS-mac.txt
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.8'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build private Yomitan helper runtime
+        shell: pwsh
+        run: installer/helper/build-windows-host.ps1
+      - name: Publish one self-contained Windows EXE
+        shell: pwsh
+        run: dotnet publish installer/windows/AnimeStudyToolsInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist/windows
+      - name: Name and checksum release file
+        shell: pwsh
+        run: |
+          Move-Item 'dist/windows/AnimeStudyToolsInstaller.exe' 'dist/Anime-Study-Tools-Installer-windows.exe'
+          (Get-FileHash 'dist/Anime-Study-Tools-Installer-windows.exe' -Algorithm SHA256).Hash.ToLowerInvariant() + '  Anime-Study-Tools-Installer-windows.exe' | Set-Content 'dist/SHA256SUMS-windows.txt'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Anime-Study-Tools-Installer-windows
+          path: |
+            dist/Anime-Study-Tools-Installer-windows.exe
+            dist/SHA256SUMS-windows.txt
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/installer-v')
+    needs: [mac, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Anime-Study-Tools-Installer-*
+          path: dist
+          merge-multiple: true
+      - name: Publish student downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/Anime-Study-Tools-Installer-mac.zip \
+            dist/Anime-Study-Tools-Installer-windows.exe \
+            dist/SHA256SUMS-mac.txt \
+            dist/SHA256SUMS-windows.txt \
+            --title "Anime Study Tools Installer 1.0.0" \
+            --notes "One installer for macOS and one installer for Windows. Each prepares both Chrome extensions and installs the private Yomitan API helper. Chrome requires two guided Load unpacked approvals because the extensions are unpublished."

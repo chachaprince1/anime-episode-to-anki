@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>AnimeStudyToolsInstaller</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\payload\extensions\**\*">
+      <Link>payload\extensions\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="resources\yomitan-api-host.exe" />
+    <EmbeddedResource Include="..\helper\yomitan_api.py"><Link>helper\yomitan_api.py</Link></EmbeddedResource>
+    <EmbeddedResource Include="..\helper\LICENSE.yomitan-api.txt"><Link>helper\LICENSE.yomitan-api.txt</Link></EmbeddedResource>
+  </ItemGroup>
+</Project>

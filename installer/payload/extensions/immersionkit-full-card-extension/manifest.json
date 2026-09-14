@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "ImmersionKit Full Card Miner",
+  "version": "1.9.4",
+  "description": "Create complete Anki sentence cards from ImmersionKit results.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.immersionkit.com/*",
+    "https://immersionkit.com/*",
+    "https://apiv2.immersionkit.com/*",
+    "https://*.immersionkit.com/*",
+    "http://127.0.0.1:8765/*",
+    "http://localhost:8765/*",
+    "http://[::1]:8765/*",
+    "http://127.0.0.1:19634/*",
+    "http://localhost:19634/*",
+    "http://[::1]:19634/*"
+  ],
+  "background": { "service_worker": "background-v192.js", "type": "module" },
+  "content_scripts": [{
+    "matches": ["https://www.immersionkit.com/*", "https://immersionkit.com/*"],
+    "js": ["content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle"
+  }]
+}

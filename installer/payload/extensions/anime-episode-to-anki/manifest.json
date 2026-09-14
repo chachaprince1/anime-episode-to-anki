@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "jpdb → Yomitan → Anki",
+  "version": "0.2.14",
+  "description": "Review a jpdb episode's vocabulary, render high-quality cards with Yomitan, and add or export them for Anki.",
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://jpdb.io/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "http://[::1]/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "jpdb → Yomitan → Anki settings",
+    "default_popup": "onboarding.html"
+  },
+  "options_page": "onboarding.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://jpdb.io/anime/*",
+        "https://jpdb.io/deck*"
+      ],
+      "js": [
+        "jlpt-data.js",
+        "core.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://jpdb.io/settings"
+      ],
+      "js": [
+        "jpdb-connect.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

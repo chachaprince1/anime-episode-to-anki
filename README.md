@@ -1,5 +1,34 @@
 # Website → Yomitan → Anki
 
+## Student install: download one file
+
+Do **not** download the source code or open the individual files shown on GitHub.
+Use one installer from the [Releases page](https://github.com/chachaprince1/anime-episode-to-anki/releases):
+
+* **Mac:** download `Anime-Study-Tools-Installer-mac.zip`. Double-click the
+  downloaded ZIP, then double-click **Anime Study Tools Installer.app**. If
+  macOS blocks it, open **System Settings → Privacy & Security**, scroll to
+  **Security**, click **Open Anyway**, enter your Mac password, and click
+  **Open**. The app prepares both Chrome extensions and installs the Yomitan
+  helper automatically; no Python, Terminal, helper script, or moving folders
+  is required.
+* **Windows:** download `Anime-Study-Tools-Installer-windows.exe` and
+  double-click it. If SmartScreen appears, click **More info**, then **Run
+  anyway**. The app installs both Chrome extensions and the Yomitan helper
+  automatically; no Python, Command Prompt, helper script, copying, or moving
+  folders is required.
+
+The installer opens Chrome and copies the exact first folder path. Chrome does
+not allow an outside app to approve unpacked extensions. In Chrome, turn on
+**Developer mode** and click **Load unpacked**. On Mac, press **Command-Shift-G**
+and **Command-V**; on Windows, press **Ctrl-L** and **Ctrl-V**. Press Return or
+Enter, then approve the folder. Use the installer’s **Copy ImmersionKit path**
+button and repeat once for the second extension. That is the only manual setup.
+
+The installers are unsigned, so the Gatekeeper/SmartScreen click above is
+expected. Verify the release checksum in `SHA256SUMS` if you need to confirm a
+download before opening it.
+
 This Chrome extension lets you turn vocabulary from anime episodes on **the website introduced in class** into Anki cards using **your Yomitan dictionaries and card settings**.
 
 The basic process is:
@@ -26,20 +55,10 @@ These steps assume Yomitan and Anki are already installed and configured.
 Do not click individual `.js`, `.html`, or `.json` files on GitHub. Those files
 work together as one Chrome extension.
 
-### Easier student setup
+### Legacy manual setup for developers
 
-If you are distributing both this extension and ImmersionKit Full Card Miner,
-download the [Student Setup package](student-setup-installer.zip). Unzip it,
-then double-click `setup-macos.command` on macOS or `setup-windows.bat` on
-Windows. The launcher copies both extensions to a permanent per-user folder,
-opens Chrome's extensions page, opens the exact folder to select, copies its
-path to the clipboard, and opens a setup wizard with connection checks.
-
-Chrome still requires two final clicks for local extensions: turn on
-**Developer mode**, click **Load unpacked**, and select each extension folder.
-The wizard then points to the included Yomitan API helper installer. This is
-the shortest supported setup without publishing the extensions in the Chrome
-Web Store.
+The source-folder steps below are retained only for people developing the
+extension. Students should use the one-file installer above.
 
 ### 1. Download the extension from GitHub
 
