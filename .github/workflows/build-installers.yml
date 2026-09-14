@@ -87,6 +87,6 @@ jobs:
               dist/Anime-Study-Tools-Installer-windows.exe \
               dist/SHA256SUMS-mac.txt \
               dist/SHA256SUMS-windows.txt \
-              --title "Anime Study Tools Installer 1.0.0" \
+              --title "Anime Study Tools Installer ${GITHUB_REF_NAME#installer-v}" \
               --notes "One installer for macOS and one installer for Windows. Each prepares both Chrome extensions and installs the private Yomitan API helper. Chrome requires two guided Load unpacked approvals because the extensions are unpublished."
           fi

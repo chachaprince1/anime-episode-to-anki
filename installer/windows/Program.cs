@@ -22,11 +22,12 @@ internal static class Program
 
 internal sealed class InstallerForm : Form
 {
-    private readonly Label _status = new() { AutoSize = false, Height = 170 };
+    private readonly Label _title = new() { AutoSize = false, Height = 40, Font = new Font(SystemFonts.DefaultFont.FontFamily, 22, FontStyle.Bold) };
+    private readonly Label _status = new() { AutoSize = false, Height = 130, Font = new Font(SystemFonts.DefaultFont.FontFamily, 15) };
     private readonly Label _connections = new() { AutoSize = false, Height = 45, ForeColor = Color.DimGray };
-    private readonly Button _next = new() { AutoSize = true };
-    private readonly Button _copyAgain = new() { AutoSize = true, Text = "Copy address again", Visible = false };
-    private readonly Button _openChrome = new() { AutoSize = true, Text = "Open Chrome again", Visible = false };
+    private readonly Button _next = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
+    private readonly Button _copyAgain = new() { AutoSize = true, Text = "Copy address again", Visible = false, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
+    private readonly Button _openChrome = new() { AutoSize = true, Text = "Open Chrome again", Visible = false, Font = new Font(SystemFonts.DefaultFont.FontFamily, 13, FontStyle.Regular), Padding = new Padding(12, 7, 12, 7) };
     private readonly CallbackServer _callback = new();
     private readonly StudyInstaller _installer = new();
     private readonly HashSet<string> _loadedExtensions = new(StringComparer.Ordinal);
@@ -35,8 +36,8 @@ internal sealed class InstallerForm : Form
     public InstallerForm()
     {
         Text = "Anime Study Tools Installer";
-        ClientSize = new Size(620, 390);
-        MinimumSize = new Size(560, 340);
+        ClientSize = new Size(670, 430);
+        MinimumSize = new Size(600, 380);
         StartPosition = FormStartPosition.CenterScreen;
         _next.Click += async (_, _) => await NextAsync();
         _copyAgain.Click += (_, _) => _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki");
@@ -48,7 +49,7 @@ internal sealed class InstallerForm : Form
             else if (extension.StartsWith("Immersion") && _screen == "step3") { _screen = "checking"; Render(); _ = CheckConnectionsAsync(); }
         }));
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(26), FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
-        layout.Controls.AddRange([_status, _next, _copyAgain, _openChrome, _connections]);
+        layout.Controls.AddRange([_title, _status, _next, _copyAgain, _openChrome, _connections]);
         foreach (Control control in layout.Controls) control.Margin = new Padding(0, 0, 0, 13);
         Controls.Add(layout);
         Shown += async (_, _) =>
@@ -84,7 +85,8 @@ internal sealed class InstallerForm : Form
             "error" => ("Something needs attention", error ?? "Try opening Chrome again."),
             _ => ("Getting everything ready", "This may take a moment. You do not need to do anything yet.")
         };
-        _status.Text = title + "\r\n\r\n" + body;
+        _title.Text = title;
+        _status.Text = body;
         _next.Text = _screen switch { "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
         _next.Enabled = _screen != "installing";
         _copyAgain.Visible = _screen is "step2" or "step3";

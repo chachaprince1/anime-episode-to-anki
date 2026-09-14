@@ -162,7 +162,7 @@ final class InstallerWindowController: NSWindowController {
     private var callbackWarning: String?
 
     convenience init() {
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 500), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 720, height: 540), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = "Anime Study Tools Installer"
         window.center()
         self.init(window: window)
@@ -204,8 +204,8 @@ final class InstallerWindowController: NSWindowController {
         case "anki": titleText = "Open Anki"; bodyText = "Open Anki Desktop, then return here to check again."
         default: titleText = "Something needs attention"; bodyText = error ?? "Try opening Chrome again."
         }
-        let title = NSTextField(labelWithString: titleText); title.font = .systemFont(ofSize: 24, weight: .bold)
-        let body = NSTextField(wrappingLabelWithString: bodyText); body.maximumNumberOfLines = 0
+        let title = NSTextField(labelWithString: titleText); title.font = .systemFont(ofSize: 26, weight: .bold)
+        let body = NSTextField(wrappingLabelWithString: bodyText); body.maximumNumberOfLines = 0; body.font = .systemFont(ofSize: 17)
         stack.addArrangedSubview(title); stack.addArrangedSubview(body)
         if let callbackWarning { let note = NSTextField(wrappingLabelWithString: callbackWarning); note.maximumNumberOfLines = 0; note.textColor = .secondaryLabelColor; stack.addArrangedSubview(note) }
         if screen == "step1" { addButton("Next — I turned it on", #selector(nextStep)); addButton("Open Chrome again", #selector(openChrome)) }
@@ -217,7 +217,7 @@ final class InstallerWindowController: NSWindowController {
         if screen == "anki" { addButton("Open Anki", #selector(openAnki)); addButton("Check again", #selector(checkConnections)) }
         if screen == "error" { addButton("Try again", #selector(repair)); addButton("Open Chrome again", #selector(openChrome)) }
     }
-    private func addButton(_ title: String, _ action: Selector) { let b = NSButton(title: title, target: self, action: action); b.bezelStyle = .rounded; b.controlSize = .large; stack.addArrangedSubview(b) }
+    private func addButton(_ title: String, _ action: Selector) { let b = NSButton(title: title, target: self, action: action); b.bezelStyle = .rounded; b.controlSize = .large; b.font = .systemFont(ofSize: 16, weight: .medium); stack.addArrangedSubview(b) }
     private func showAnimeStep() { screen = "step2"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")); Installer.shared.openChromeExtensions(); render() }
     private func showImmersionStep() { screen = "step3"; Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")); Installer.shared.openChromeExtensions(); render() }
     @objc private func nextStep() {
