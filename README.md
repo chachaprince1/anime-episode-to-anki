@@ -1,5 +1,12 @@
 # Website → Yomitan → Anki
 
+## Combined student release: installer-v1.0.0 and later
+
+Beginning with release **installer-v1.0.0**, this extension and the ImmersionKit
+Full Card Miner are distributed together through one student installer. The
+installer prepares both Chrome extensions and the private Yomitan helper; you
+do not need separate installer downloads for the two extensions.
+
 ## Student install: download one file
 
 Do **not** download the source code or open the individual files shown on GitHub.
