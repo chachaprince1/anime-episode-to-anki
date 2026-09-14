@@ -186,7 +186,18 @@ final class InstallerWindowController: NSWindowController {
 
     @objc private func install() {
         guard !installed else { return }
-        do { _ = try Installer.shared.install(); installed = true; screen = "step1"; render(); Installer.shared.openChromeExtensions() }
+        do {
+            _ = try Installer.shared.install()
+            installed = true
+            Installer.shared.openChromeExtensions()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self else { return }
+                self.screen = "step1"
+                self.render()
+                self.window?.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+            }
+        }
         catch { screen = "error"; render(error.localizedDescription) }
     }
 

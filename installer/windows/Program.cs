@@ -66,7 +66,12 @@ internal sealed class InstallerForm : Form
         try
         {
             _installer.Install();
-            _screen = "step1"; Render(); StudyInstaller.OpenChromeExtensions();
+            StudyInstaller.OpenChromeExtensions();
+            await Task.Delay(500);
+            _screen = "step1";
+            Render();
+            Activate();
+            BringToFront();
         }
         catch (Exception error) { _screen = "error"; Render(error.Message); }
         finally { _next.Enabled = true; }
