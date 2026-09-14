@@ -1,6 +1,6 @@
 "use strict";
 
-importScripts("core.js", "jpdb-connect-background.js");
+importScripts("core.js", "jpdb-connect-background.js", "installer-probe.js");
 
 const Core = globalThis.JYACore;
 const YOMITAN_ANKI_SETTINGS_URL = "chrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#anki";
@@ -618,7 +618,15 @@ async function handleMessage(message, sender) {
     case "beginJpdbConnection":
       requireOnboardingSender(sender);
       return globalThis.JYAJpdbConnect.begin();
-    case "completeJpdbConnection": return globalThis.JYAJpdbConnect.complete(message, sender);
+    case "completeJpdbConnection": {
+      const result = await globalThis.JYAJpdbConnect.complete(message, sender);
+      await globalThis.JYAInstallerProbe?.announceJpdbConnected?.();
+      return result;
+    }
+    case "announceInstallerJpdbConnected":
+      requireOnboardingSender(sender);
+      await globalThis.JYAInstallerProbe?.announceJpdbConnected?.();
+      return true;
     case "clearJpdbConnection":
       requireOnboardingSender(sender);
       return clearJpdbConnection();

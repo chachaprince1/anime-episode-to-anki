@@ -8,8 +8,17 @@ private let yomitanExtensionID = "likgccmbimhjbgkjambclfkhldnlhbnn"
 final class CallbackServer {
     private var listener: NWListener?
     private(set) var loaded = Set<String>()
+    private(set) var onboardingURL: String?
+    private(set) var jpdbConnected = false
     var loadedCount: Int { loaded.count }
     var onLoad: ((String) -> Void)?
+    var onJpdbConnected: (() -> Void)?
+
+    private func validOnboardingURL(_ value: String) -> String? {
+        guard let url = URL(string: value), url.scheme == "chrome-extension", url.path == "/onboarding.html",
+              let host = url.host, host.range(of: "^[a-p]{32}$", options: .regularExpression) != nil else { return nil }
+        return url.absoluteString
+    }
 
     func start() -> String? {
         do {
@@ -18,10 +27,23 @@ final class CallbackServer {
                 connection.start(queue: .main)
                 connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { data, _, _, _ in
                     let request = String(data: data ?? Data(), encoding: .utf8) ?? ""
-                    let component = request.contains("extension=immersionkit") ? "immersionkit" : "anime"
+                    guard let requestLine = request.split(separator: "\r\n", maxSplits: 1).first,
+                          let target = requestLine.split(separator: " ").dropFirst().first,
+                          let components = URLComponents(string: "http://127.0.0.1\(target)") else {
+                        connection.cancel(); return
+                    }
+                    let query = (components.queryItems ?? []).reduce(into: [String: String]()) { result, item in
+                        if result[item.name] == nil { result[item.name] = item.value ?? "" }
+                    }
+                    let component = query["extension"] == "immersionkit" ? "immersionkit" : "anime"
                     if request.contains("/extension-loaded") {
+                        if component == "anime", let onboarding = self?.validOnboardingURL(query["onboarding"] ?? "") { self?.onboardingURL = onboarding }
                         self?.loaded.insert(component)
                         self?.onLoad?(component)
+                    }
+                    if request.contains("/jpdb-connected") && component == "anime" {
+                        self?.jpdbConnected = true
+                        self?.onJpdbConnected?()
                     }
                     let response = "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
                     connection.send(content: response.data(using: .utf8), completion: .contentProcessed { _ in connection.cancel() })
@@ -181,6 +203,10 @@ final class InstallerWindowController: NSWindowController {
             if loaded == "anime" && self.screen == "step2" { self.showImmersionStep() }
             if loaded == "immersionkit" && self.screen == "step3" { self.screen = "checking"; self.render(); self.checkConnections() }
         }
+        Installer.shared.callbackServer.onJpdbConnected = { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async { self.screen = "complete"; self.render(); self.window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
+        }
         callbackWarning = Installer.shared.callbackServer.start()
         render()
     }
@@ -212,6 +238,8 @@ final class InstallerWindowController: NSWindowController {
         case "step2": titleText = "Add Anime Episode to Anki"; bodyText = "Chrome needs this address so it can keep using the extension. I already copied it for you.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
         case "step3": titleText = "Add ImmersionKit Full Card Miner"; bodyText = "Chrome needs this address so it can keep using the extension. I already copied it for you.\n\nIn Chrome, click Load unpacked. Press Command-Shift-G, Command-V, Return, then Open."
         case "checking": titleText = "Checking your setup"; bodyText = "You do not need to do anything yet."
+        case "jpdb": titleText = "Connect your jpdb account"; bodyText = "The extension needs permission to read episode vocabulary from your jpdb account through jpdb’s official API. Your private API key stays inside the Chrome extension. This installer never sees or copies it."
+        case "jpdbWaiting": titleText = "One last click in Chrome"; bodyText = "On the jpdb page, click Use this API key in the Anime Episode to Anki box. If jpdb asks you to sign in, sign in, then come back here and click Open again."
         case "complete": titleText = "You’re all set"; bodyText = "Both extensions and the Yomitan helper are installed in the permanent location. You can close this installer."
         case "yomitan": titleText = "Yomitan needs one setting"; bodyText = "The installer already added the Yomitan helper. Open Yomitan settings, open Advanced, then enable Yomitan API."
         case "anki": titleText = "Open Anki"; bodyText = "Open Anki Desktop, then return here to check again."
@@ -226,6 +254,8 @@ final class InstallerWindowController: NSWindowController {
         if screen == "step2" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyAnime)); addButton("Open Chrome again", #selector(openChrome)) }
         if screen == "step3" { addButton("Next — I loaded it", #selector(nextStep)); addButton("Back", #selector(backStep)); addButton("Copy address again", #selector(copyImmersion)); addButton("Open Chrome again", #selector(openChrome)) }
         if screen == "checking" { addButton("Check again", #selector(checkConnections)) }
+        if screen == "jpdb" { addButton("Connect my jpdb account", #selector(connectJpdb)); addButton("Back", #selector(backFromJpdb)) }
+        if screen == "jpdbWaiting" { addButton("Open again", #selector(connectJpdb)); addButton("Back", #selector(backFromJpdb)); if callbackWarning != nil { addButton("I’m connected", #selector(assumeJpdbConnected)) } }
         if screen == "complete" { addButton("Repair", #selector(repair)) }
         if screen == "yomitan" { addButton("Open Yomitan settings", #selector(openYomitan)); addButton("Check again", #selector(checkConnections)) }
         if screen == "anki" { addButton("Open Anki", #selector(openAnki)); addButton("Check again", #selector(checkConnections)) }
@@ -247,10 +277,17 @@ final class InstallerWindowController: NSWindowController {
     @objc private func copyAnime() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("anime-episode-to-anki")) }
     @objc private func copyImmersion() { Installer.shared.copyToClipboard(Installer.shared.extensionPath("immersionkit-full-card-extension")) }
     @objc private func openChrome() { Installer.shared.openChromeExtensions() }
+    @objc private func connectJpdb() {
+        guard let base = Installer.shared.callbackServer.onboardingURL else { Installer.shared.openChromeExtensions(); return }
+        let separator = base.contains("?") ? "&" : "?"
+        screen = "jpdbWaiting"; render(); Installer.shared.openChrome(base + separator + "installer=connect")
+    }
+    @objc private func backFromJpdb() { screen = "checking"; render(); checkConnections() }
+    @objc private func assumeJpdbConnected() { screen = "complete"; render() }
     @objc private func openYomitan() { Installer.shared.openChrome("chrome-extension://\(yomitanExtensionID)/settings.html#general") }
     @objc private func openAnki() { NSWorkspace.shared.open(URL(string: "anki:")!) }
     @objc private func repair() { installed = false; screen = "installing"; render(); install() }
-    @objc private func checkConnections() { Installer.shared.connectionSummary { [weak self] summary in DispatchQueue.main.async { guard let self else { return }; if summary.contains("Yomitan API: not ready") { self.screen = "yomitan" } else if summary.contains("AnkiConnect: not ready") { self.screen = "anki" } else { self.screen = "complete" }; self.render() } } }
+    @objc private func checkConnections() { Installer.shared.connectionSummary { [weak self] summary in DispatchQueue.main.async { guard let self else { return }; if summary.contains("Yomitan API: not ready") { self.screen = "yomitan" } else if summary.contains("AnkiConnect: not ready") { self.screen = "anki" } else if !Installer.shared.callbackServer.jpdbConnected { self.screen = "jpdb" } else { self.screen = "complete" }; self.render() } } }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {

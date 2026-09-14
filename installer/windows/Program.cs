@@ -50,6 +50,13 @@ internal sealed class InstallerForm : Form
             if (extension.StartsWith("Anime") && _screen == "step2") { _screen = "step3"; _installer.CopyPath("immersionkit-full-card-extension"); Render(); }
             else if (extension.StartsWith("Immersion") && _screen == "step3") { _screen = "checking"; Render(); _ = CheckConnectionsAsync(); }
         }));
+        _callback.JpdbConnectedSignal += () => BeginInvoke((Action)(() =>
+        {
+            _screen = "complete";
+            Render();
+            Activate();
+            BringToFront();
+        }));
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(26), FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
         layout.Controls.AddRange([_title, _status, _next, _back, _copyAgain, _openChrome, _connections]);
         foreach (Control control in layout.Controls) control.Margin = new Padding(0, 0, 0, 13);
@@ -88,6 +95,8 @@ internal sealed class InstallerForm : Form
             "step2" => ("Add Anime Episode to Anki", "Chrome needs this address so it can keep using the extension. I already copied it for you.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
             "step3" => ("Add ImmersionKit Full Card Miner", "Chrome needs this address so it can keep using the extension. I already copied it for you.\r\n\r\nIn Chrome, click Load unpacked. Press Ctrl-L, Ctrl-V, Enter, then Select Folder."),
             "checking" => ("Checking your setup", "You do not need to do anything yet."),
+            "jpdb" => ("Connect your jpdb account", "The extension needs permission to read episode vocabulary from your jpdb account through jpdb’s official API. Your private API key stays inside the Chrome extension. This installer never sees or copies it."),
+            "jpdbWaiting" => ("One last click in Chrome", "On the jpdb page, click Use this API key in the Anime Episode to Anki box. If jpdb asks you to sign in, sign in, then come back here and click Open again."),
             "complete" => ("You’re all set", "Both extensions and the Yomitan helper are installed in the permanent location. You can close this installer."),
             "yomitan" => ("Yomitan needs one setting", "The installer already added the Yomitan helper. Open Yomitan settings, open Advanced, then enable Yomitan API."),
             "anki" => ("Open Anki", "Open Anki Desktop, then return here to check again."),
@@ -96,12 +105,12 @@ internal sealed class InstallerForm : Form
         };
         _title.Text = title;
         _status.Text = body;
-        _next.Text = _screen switch { "intro" => "Start setup", "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
+        _next.Text = _screen switch { "intro" => "Start setup", "step1" => "Next — I turned it on", "step2" or "step3" => "Next — I loaded it", "checking" or "yomitan" or "anki" => "Check again", "jpdb" => "Connect my jpdb account", "jpdbWaiting" => "Open again", "complete" => "Finish", "error" => "Try again", _ => "Please wait" };
         _next.Enabled = _screen != "installing";
-        _back.Visible = _screen is "step2" or "step3";
+        _back.Visible = _screen is "step2" or "step3" or "jpdb" or "jpdbWaiting";
         _copyAgain.Visible = _screen is "step2" or "step3";
         _openChrome.Text = _screen switch { "yomitan" => "Open Yomitan settings", "anki" => "Open Anki", _ => "Open Chrome again" };
-        _openChrome.Visible = _screen is "step1" or "step2" or "step3" or "error" or "yomitan" or "anki";
+        _openChrome.Visible = _screen is "step1" or "step2" or "step3" or "error" or "yomitan" or "anki" or "jpdb" or "jpdbWaiting";
         _connections.Visible = _screen is "checking" or "yomitan" or "anki";
     }
     private async Task NextAsync()
@@ -110,6 +119,7 @@ internal sealed class InstallerForm : Form
         if (_screen == "step1") { _screen = _loadedExtensions.Any(value => value.StartsWith("Anime")) ? "step3" : "step2"; _installer.CopyPath(_screen == "step3" ? "immersionkit-full-card-extension" : "anime-episode-to-anki"); }
         else if (_screen == "step2") { _screen = "step3"; _installer.CopyPath("immersionkit-full-card-extension"); }
         else if (_screen == "step3" || _screen == "checking" || _screen == "yomitan" || _screen == "anki") { await CheckConnectionsAsync(); return; }
+        else if (_screen == "jpdb" || _screen == "jpdbWaiting") { ConnectJpdb(); return; }
         else if (_screen == "complete") { Close(); return; }
         else if (_screen == "error") { _screen = "installing"; Render(); await InstallAsync(); return; }
         Render();
@@ -118,18 +128,28 @@ internal sealed class InstallerForm : Form
     {
         if (_screen == "step3") { _screen = "step2"; _installer.CopyPath("anime-episode-to-anki"); }
         else if (_screen == "step2") _screen = "step1";
+        else if (_screen == "jpdbWaiting") _screen = "jpdb";
+        else if (_screen == "jpdb") _screen = "checking";
         Render();
     }
     private void OpenRecoveryTarget()
     {
         if (_screen == "yomitan") StudyInstaller.OpenChromeUrl("chrome-extension://likgccmbimhjbgkjambclfkhldnlhbnn/settings.html#general");
         else if (_screen == "anki") Process.Start(new ProcessStartInfo("anki:") { UseShellExecute = true });
+        else if (_screen is "jpdb" or "jpdbWaiting") ConnectJpdb();
         else StudyInstaller.OpenChromeExtensions();
+    }
+    private void ConnectJpdb()
+    {
+        var baseUrl = _callback.OnboardingUrl;
+        if (string.IsNullOrWhiteSpace(baseUrl)) { StudyInstaller.OpenChromeExtensions(); return; }
+        _screen = "jpdbWaiting"; Render();
+        StudyInstaller.OpenChromeUrl(baseUrl + (baseUrl.Contains('?') ? "&" : "?") + "installer=connect");
     }
     private async Task CheckConnectionsAsync()
     {
         var summary = await _installer.ConnectionSummaryAsync(); _connections.Text = summary;
-        _screen = summary.Contains("Yomitan API: not ready") ? "yomitan" : summary.Contains("AnkiConnect: not ready") ? "anki" : "complete"; Render();
+        _screen = summary.Contains("Yomitan API: not ready") ? "yomitan" : summary.Contains("AnkiConnect: not ready") ? "anki" : _callback.JpdbConnected ? "complete" : "jpdb"; Render();
     }
 }
 
@@ -255,6 +275,10 @@ internal sealed class CallbackServer
 {
     private TcpListener? _listener;
     public event Action<string>? ExtensionLoaded;
+    public event Action? JpdbConnectedSignal;
+    public string? OnboardingUrl { get; private set; }
+    public bool JpdbConnectedFlag { get; private set; }
+    public bool JpdbConnected => JpdbConnectedFlag;
 
     public bool Start(out string warning)
     {
@@ -275,10 +299,30 @@ internal sealed class CallbackServer
                 using var stream = client.GetStream();
                 var buffer = new byte[8192]; var count = await stream.ReadAsync(buffer);
                 var request = Encoding.ASCII.GetString(buffer, 0, count);
-                if (request.Contains("/extension-loaded")) ExtensionLoaded?.Invoke(request.Contains("extension=immersionkit") ? "ImmersionKit Full Card Miner" : "Anime Episode to Anki");
+                var target = request.Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault() ?? "";
+                var uri = Uri.TryCreate("http://127.0.0.1" + target, UriKind.Absolute, out var parsed) ? parsed : null;
+                var extension = QueryValue(uri, "extension");
+                if (extension == "anime" && request.Contains("/extension-loaded"))
+                {
+                    var candidate = QueryValue(uri, "onboarding");
+                    if (Uri.TryCreate(candidate, UriKind.Absolute, out var onboarding) && onboarding.Scheme == "chrome-extension" && onboarding.Host.Length == 32 && System.Text.RegularExpressions.Regex.IsMatch(onboarding.Host, "^[a-p]{32}$") && onboarding.AbsolutePath == "/onboarding.html") OnboardingUrl = onboarding.AbsoluteUri;
+                    ExtensionLoaded?.Invoke("Anime Episode to Anki");
+                }
+                else if (extension == "immersionkit" && request.Contains("/extension-loaded")) ExtensionLoaded?.Invoke("ImmersionKit Full Card Miner");
+                if (extension == "anime" && request.Contains("/jpdb-connected")) { JpdbConnectedFlag = true; JpdbConnectedSignal?.Invoke(); }
                 await stream.WriteAsync(Encoding.ASCII.GetBytes("HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"));
             }
             catch { return; }
         }
+    }
+
+    private static string? QueryValue(Uri? uri, string name)
+    {
+        foreach (var pair in (uri?.Query ?? "").TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = pair.Split('=', 2);
+            if (parts.Length == 2 && string.Equals(Uri.UnescapeDataString(parts[0]), name, StringComparison.Ordinal)) return Uri.UnescapeDataString(parts[1]);
+        }
+        return null;
     }
 }

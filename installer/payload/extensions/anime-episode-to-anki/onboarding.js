@@ -7,6 +7,9 @@
   let checking = false;
   let lastCheckAt = 0;
   let saveTimer = 0;
+  const installerConnectMode = new URLSearchParams(location.search).get("installer") === "connect";
+  let installerAutoStarted = false;
+  let installerAnnounced = false;
 
   async function send(message) {
     const response = await chrome.runtime.sendMessage(message);
@@ -179,6 +182,7 @@
       state.formatError = result.formatError || "";
       lastCheckAt = Date.now();
       render();
+      void maybeFinishInstallerConnection();
     } catch (error) {
       setSaveStatus(error?.message || String(error), true);
       byId("overall-status").textContent = "Could not check connections. Try again.";
@@ -187,6 +191,18 @@
       button.disabled = false;
       button.textContent = "Check again";
     }
+  }
+
+  async function maybeFinishInstallerConnection() {
+    if (!installerConnectMode || installerAnnounced) return;
+    if (!state.jpdb?.ok) {
+      if (installerAutoStarted) return;
+      installerAutoStarted = true;
+      await connectJpdb();
+      return;
+    }
+    installerAnnounced = true;
+    try { await send({type: "announceInstallerJpdbConnected"}); } catch (_) { installerAnnounced = false; }
   }
 
   async function connectJpdb() {
@@ -289,6 +305,7 @@
     await loadSettings();
     render();
     await testConnections();
+    void maybeFinishInstallerConnection();
   }
 
   void init();
