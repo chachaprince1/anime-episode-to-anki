@@ -71,6 +71,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
             dist/Anime-Study-Tools-Installer-mac.zip \
             dist/Anime-Study-Tools-Installer-windows.exe \
             dist/SHA256SUMS-mac.txt \
